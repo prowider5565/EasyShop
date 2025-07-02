@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from tortoise import run_async
 
 from core.utils import init_db
@@ -27,6 +27,13 @@ Backend dasturlashda quyidagi http metodlar bor:
 @app.get("/hello")
 def say_hello():
     return {"msg": "Hello Pythonic world!"}
+
+
+@app.post("/register")
+def register_user():
+    data = request.json
+    print(data["username"])
+    return {"msg": "successful"}
 
 
 if __name__ == "__main__":
