@@ -1,8 +1,5 @@
-from tortoise import Tortoise
-from core.settings import TORTOISE_ORM
+import hashlib
 
 
-
-async def init_db():
-    await Tortoise.init(config=TORTOISE_ORM)
-    await Tortoise.generate_schemas(safe=True)
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()

@@ -1,11 +1,8 @@
-from flask import Flask, request
-from tortoise import run_async
-
-from core.utils import init_db
-
-
-app = Flask(__name__)
-
+from flask import Flask
+from users.handlers import user_bp
+from tortoise import Tortoise
+from core.settings import TORTOISE_ORM
+import asyncio
 
 """
 Backend dasturlashda quyidagi http metodlar bor:
@@ -24,18 +21,21 @@ Backend dasturlashda quyidagi http metodlar bor:
 """
 
 
-@app.get("/hello")
-def say_hello():
-    return {"msg": "Hello Pythonic world!"}
+app = Flask(__name__)
+app.register_blueprint(user_bp)
 
+# ORM-ni ishga tushurish
+async def init_orm():
+    await Tortoise.init(config=TORTOISE_ORM)
+    await Tortoise.generate_schemas()
 
-@app.post("/register")
-def register_user():
-    data = request.json
-    print(data["username"])
-    return {"msg": "successful"}
-
+# ORM-ni yopish
+async def close_orm():
+    await Tortoise.close_connections()
 
 if __name__ == "__main__":
-    run_async(init_db())
-    app.run(debug=True, port=3030)
+    asyncio.run(init_orm())  # ORM ni boshlash
+    try:
+        app.run(debug=True)
+    finally:
+        asyncio.run(close_orm())
