@@ -7,8 +7,8 @@
 from flask import Blueprint, request, jsonify
 from users.models import User
 from core.utils import hash_password
-from tortoise.exceptions import DoesNotExist
 import hashlib
+
 user_bp = Blueprint("user", __name__)
 
 

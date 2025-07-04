@@ -1,5 +1,6 @@
 from flask import Flask
 from users.handlers import user_bp
+from products.handlers import product_bp
 from tortoise import Tortoise
 from core.settings import TORTOISE_ORM
 import asyncio
@@ -23,7 +24,7 @@ Backend dasturlashda quyidagi http metodlar bor:
 
 app = Flask(__name__)
 app.register_blueprint(user_bp)
-
+app.register_blueprint(product_bp)
 # ORM-ni ishga tushurish
 async def init_orm():
     await Tortoise.init(config=TORTOISE_ORM)
