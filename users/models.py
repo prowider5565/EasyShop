@@ -7,9 +7,9 @@ class User(Model):
     username = fields.CharField(max_length=50, unique=True)
     email = fields.CharField(max_length=100, unique=True)
     password = fields.CharField(max_length=128)
-    is_active = fields.BooleanField(default=True)
     created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField(auto_now=True)
+    # is_active = fields.BooleanField(default=True)
+    # updated_at = fields.DatetimeField(auto_now=True)
     is_superuser = fields.BooleanField(default=False)
 
     def __str__(self):
