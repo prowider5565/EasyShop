@@ -11,6 +11,7 @@ class User(Model):
     # is_active = fields.BooleanField(default=True)
     # updated_at = fields.DatetimeField(auto_now=True)
     is_superuser = fields.BooleanField(default=False)
+    
 
     def __str__(self):
         return self.username

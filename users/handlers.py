@@ -81,8 +81,4 @@ async def get_user():
     else:
         return jsonify({"error": "Siz admin emassiz"}), 403
     
-# Mijoz registratsiyasi bolsin
-# Administrator registratsiya bolsin
-# Login
-# Get-info - uzimni malumotlarimni olish uchun api
-# Get-users !!!! faqatgina administrator kora olsin
+
