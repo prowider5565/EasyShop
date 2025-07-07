@@ -2,30 +2,35 @@
 
 
 from flask import Blueprint, request, jsonify
+from pydantic import ValidationError
 from products.models import Product
-from users.models import User
+from products.schemas import ProductSchema
 
 product_bp = Blueprint("products", __name__)
 
+
 @product_bp.route("/create", methods=["POST"])
 async def create():
-    data = request.form
-
-    product_name = data.get("name")
-    product_description = data.get("description")
-    product_price = data.get("price")
-    product_owner_id = data.get("owner")
-
-    if not product_name or not product_description or not product_price:
-        return jsonify({"error": "All fields are required"}), 400
-
-
+    data = request.json
     try:
-        await Product.create(product_name = product_name, product_description = product_description, product_price = product_price,product_owner_id = product_owner_id)
-        return jsonify({"message": "Product created successfully"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
+        product = ProductSchema(**data)
+
+        # product_name = data.get("name", None)
+        # product_description = data.get("description")
+        # product_price = data.get("price")
+        # product_owner_id = data.get("owner")
+
+        # if not product_name or not product_description or not product_price:
+        #     return jsonify({"error": "All fields are required"}), 400
+
+        try:
+            await Product.create(**product.model_dump())
+            return jsonify({"message": "Product created successfully"}), 201
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    except ValidationError as e:
+        return jsonify({"error": e.errors()}), 400
+
 
 @product_bp.route("/remove", methods=["POST"])
 async def remove_product():
@@ -47,6 +52,7 @@ async def remove_product():
 
     await product.delete()
     return jsonify({"message": "Product muvaffaqiyatli o'chirildi"}), 200
+
 
 @product_bp.route("/update", methods=["POST"])
 async def update_product():
