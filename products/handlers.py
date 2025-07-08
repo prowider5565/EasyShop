@@ -1,10 +1,7 @@
-# CRUD  - create_product(product_owner)-done, remove_product-done, update_product - done
-
-
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 from products.models import Product
-from products.schemas import ProductSchema
+from products.schemas import ProductSchema,RemoveSchema,UpdateSchema,PaginationSchema
 
 product_bp = Blueprint("products", __name__)
 
@@ -14,15 +11,6 @@ async def create():
     data = request.json
     try:
         product = ProductSchema(**data)
-
-        # product_name = data.get("name", None)
-        # product_description = data.get("description")
-        # product_price = data.get("price")
-        # product_owner_id = data.get("owner")
-
-        # if not product_name or not product_description or not product_price:
-        #     return jsonify({"error": "All fields are required"}), 400
-
         try:
             await Product.create(**product.model_dump())
             return jsonify({"message": "Product created successfully"}), 201
@@ -34,56 +22,83 @@ async def create():
 
 @product_bp.route("/remove", methods=["POST"])
 async def remove_product():
-    data = request.form
-
-    product_owner_id = data.get("owner_id")
-    product_id = data.get("id")
-
-    if not product_owner_id or not product_id:
-        return jsonify({"error": "All fields are required"}), 400
+    data = request.json
 
     try:
-        product = await Product.get(id=int(product_id))
-    except:
-        return jsonify({"error": "Bunday product topilmadi"}), 404
+        remove_s=RemoveSchema(**data)
 
-    if str(product.product_owner_id) != product_owner_id:
-        return jsonify({"error": "Siz bu product egasi emassiz!"}), 403
+        try:
+            product = await Product.get(id=int(remove_s.product_id))
+        except:
+            return jsonify({"error": "Bunday product topilmadi"}), 404
 
-    await product.delete()
-    return jsonify({"message": "Product muvaffaqiyatli o'chirildi"}), 200
+        if str(product.owner_id) != remove_s.owner_id:
+            return jsonify({"error": "Siz bu product egasi emassiz!"}), 403
 
+        await product.delete()
+        return jsonify({"message": "Product muvaffaqiyatli o'chirildi"}), 200
+    
+    except ValidationError as e:
+        return jsonify({"error": e.errors()}), 400
 
 @product_bp.route("/update", methods=["POST"])
 async def update_product():
-    data = request.form
+    try:
+        data = request.json
 
-    product_id = data.get("id")
-    owner_id = data.get("owner_id")
-    name = data.get("name")
-    description = data.get("description")
-    price = data.get("price")
 
-    if not product_id or not owner_id:
-        return jsonify({"error": "ID va egasi kerak"}), 400
+        update = UpdateSchema(**data)
+
+        try:
+            product = await Product.get(id=update.id)
+        except:
+            return jsonify({"error": "Mahsulot topilmadi"}), 404
+
+        if str(product.owner_id) != str(update.owner_id):
+            return jsonify({"error": "Siz bu product egasi emassiz!"}), 403
+
+        if update.name:
+            product.name = update.name
+        if update.description:
+            product.description = update.description
+        if update.price is not None:
+            try:
+                product.price = float(update.price)
+            except:
+                return jsonify({"error": "Narx raqam bo‘lishi kerak"}), 400
+
+        await product.save()
+        return jsonify({"message": "Mahsulot muvaffaqiyatli yangilandi"}), 200
+
+    except ValidationError as e:
+        return jsonify({"error": e.errors()}), 400
+
+
+@product_bp.route("/products", methods=["POST"])
+async def get_products_paginated():
+    data = request.get_json()  
 
     try:
-        product = await Product.get(id=int(product_id))
-    except:
-        return jsonify({"error": "Mahsulot topilmadi"}), 404
+        pagination = PaginationSchema(**data)  
+        offset = (pagination.page - 1) * pagination.per_page
 
-    if str(product.product_owner_id) != owner_id:
-        return jsonify({"error": "Siz bu product egasi emassiz!"}), 403
+        total = await Product.all().count()
+        products = await Product.all().offset(offset).limit(pagination.per_page)
 
-    if name:
-        product.product_name = name
-    if description:
-        product.product_description = description
-    if price:
-        try:
-            product.product_price = int(price)
-        except:
-            return jsonify({"error": "Narx raqam bo‘lishi kerak"}), 400
+        results = []
+        for product in products:
+            results.append({
+                "id": product.id,
+                "name": product.name,
+                "description": product.description,
+                "price": product.price
+            })
 
-    await product.save()
-    return jsonify({"message": "Mahsulot muvaffaqiyatli yangilandi"}), 200
+        return jsonify({
+            "total": total,
+            "page": pagination.page,
+            "per_page": pagination.per_page,
+            "products": results
+        })
+    except ValidationError as e:
+        return jsonify({"error": e.errors()}), 400

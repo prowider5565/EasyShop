@@ -7,7 +7,7 @@ class Product(Model):
     name = fields.CharField(max_length=100)
     description = fields.CharField(max_length=500)
     price = fields.IntField(max_length=50)
-    owner_id = fields.CharField(max_length=50)
+    owner_id = fields.IntField(max_length=50)
 
     def __str__(self):
         return self.name
