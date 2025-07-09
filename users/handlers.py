@@ -18,9 +18,7 @@ async def register():
         hashed_pw = hash_password(user.password)
 
         try:
-            await User.create(
-                username=user.username, email=user.email, password=hashed_pw, is_superuser=user.is_superuser
-            )
+            await User.create(**user.model_dump())
             return jsonify({"message": "User registered successfully"}), 201
         except Exception as e:
             return jsonify({"error": str(e)}), 500
