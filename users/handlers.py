@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from users.models import User
-from core.utils import hash_password
+# from core.utils import hash_password
 import hashlib
 from users.schemas import RegisterSchema, LoginSchema, GetSchema
 from pydantic import ValidationError
@@ -15,8 +15,6 @@ async def register():
 
     try:
         user = RegisterSchema(**data)
-        hashed_pw = hash_password(user.password)
-
         try:
             await User.create(**user.model_dump())
             return jsonify({"message": "User registered successfully"}), 201
