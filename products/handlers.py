@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 from products.models import Product
-from products.schemas import ProductSchema,RemoveSchema,UpdateSchema,PaginationSchema
+from products.schemas import ProductSchema, RemoveSchema, UpdateSchema, PaginationSchema
 
 product_bp = Blueprint("products", __name__)
 
@@ -25,7 +25,7 @@ async def remove_product():
     data = request.json
 
     try:
-        remove_s=RemoveSchema(**data)
+        remove_s = RemoveSchema(**data)
 
         try:
             product = await Product.get(id=int(remove_s.product_id))
@@ -37,15 +37,15 @@ async def remove_product():
 
         await product.delete()
         return jsonify({"message": "Product muvaffaqiyatli o'chirildi"}), 200
-    
+
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
+
 
 @product_bp.route("/update", methods=["POST"])
 async def update_product():
     try:
         data = request.json
-
 
         update = UpdateSchema(**data)
 
@@ -74,12 +74,12 @@ async def update_product():
         return jsonify({"error": e.errors()}), 400
 
 
-@product_bp.route("/products", methods=["POST"])
+@product_bp.route("/list", methods=["POST"])
 async def get_products_paginated():
-    data = request.get_json()  
+    data = request.get_json()
 
     try:
-        pagination = PaginationSchema(**data)  
+        pagination = PaginationSchema(**data)
         offset = (pagination.page - 1) * pagination.per_page
 
         total = await Product.all().count()
@@ -87,18 +87,22 @@ async def get_products_paginated():
 
         results = []
         for product in products:
-            results.append({
-                "id": product.id,
-                "name": product.name,
-                "description": product.description,
-                "price": product.price
-            })
+            results.append(
+                {
+                    "id": product.id,
+                    "name": product.name,
+                    "description": product.description,
+                    "price": product.price,
+                }
+            )
 
-        return jsonify({
-            "total": total,
-            "page": pagination.page,
-            "per_page": pagination.per_page,
-            "products": results
-        })
+        return jsonify(
+            {
+                "total": total,
+                "page": pagination.page,
+                "per_page": pagination.per_page,
+                "products": results,
+            }
+        )
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
