@@ -6,7 +6,7 @@ class RegisterSchema(BaseModel):
     username: str
     email: str
     password: str
-    is_superuser: Optional[int]  = None
+    is_superuser: Optional[bool]  = None
 
 class LoginSchema(BaseModel):
     username: str

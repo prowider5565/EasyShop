@@ -23,16 +23,21 @@ Backend dasturlashda quyidagi http metodlar bor:
 
 
 app = Flask(__name__)
-app.register_blueprint(user_bp)
+
+app.register_blueprint(user_bp, url_prefix="/users")
 app.register_blueprint(product_bp, url_prefix="/products")
+
+
 # ORM-ni ishga tushurish
 async def init_orm():
     await Tortoise.init(config=TORTOISE_ORM)
     await Tortoise.generate_schemas()
 
+
 # ORM-ni yopish
 async def close_orm():
     await Tortoise.close_connections()
+
 
 if __name__ == "__main__":
     asyncio.run(init_orm())  # ORM ni boshlash

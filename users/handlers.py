@@ -1,9 +1,13 @@
 from flask import Blueprint, request, jsonify
 from users.models import User
+
 # from core.utils import hash_password
 import hashlib
 from users.schemas import RegisterSchema, LoginSchema, GetSchema
 from pydantic import ValidationError
+
+from utils.auth import hash_password, verify_password
+from utils.jwt import full_jwt
 
 
 user_bp = Blueprint("user", __name__)
@@ -15,6 +19,7 @@ async def register():
 
     try:
         user = RegisterSchema(**data)
+        user.password = hash_password(user.password)
         try:
             await User.create(**user.model_dump())
             return jsonify({"message": "User registered successfully"}), 201
@@ -30,29 +35,27 @@ async def login():
 
     try:
         login = LoginSchema(**data)
-        input_hash = hashlib.sha256(login.password.encode()).hexdigest()
-
         try:
             user = await User.get(username=login.username)
         except:
             return jsonify({"error": "Username noto'g'ri"}), 404
 
-
-        if user.password != input_hash:
+        if not verify_password(login.password, user.password):
             return jsonify({"error": "Parol noto'g'ri"}), 401
 
         return jsonify(
             {
-                "message": f"Xush kelibsiz, {user.username}! Sizning ma'lumotlaringiz: Username - {user.username}, Email - {user.email}, Tizimga kirgan vaqt - {user.created_at}"
+                "jwt": full_jwt({"user_id": user.id})
+                # "message": f"Xush kelibsiz, {user.username}! Sizning ma'lumotlaringiz: Username - {user.username}, Email - {user.email}, Tizimga kirgan vaqt - {user.created_at}"
             }
         )
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
 
+
 @user_bp.route("/get", methods=["POST"])
 async def get_user():
     data = request.json
-
 
     try:
         get = GetSchema(**data)
@@ -72,4 +75,3 @@ async def get_user():
             return jsonify({"error": "Siz admin emassiz"}), 403
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
-    
