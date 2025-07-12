@@ -5,7 +5,6 @@ from users.models import User
 import hashlib
 from users.schemas import RegisterSchema, LoginSchema, GetSchema
 from pydantic import ValidationError
-
 from utils.auth import hash_password, verify_password
 from utils.jwt import full_jwt
 
@@ -46,7 +45,6 @@ async def login():
         return jsonify(
             {
                 "jwt": full_jwt({"user_id": user.id})
-                # "message": f"Xush kelibsiz, {user.username}! Sizning ma'lumotlaringiz: Username - {user.username}, Email - {user.email}, Tizimga kirgan vaqt - {user.created_at}"
             }
         )
     except ValidationError as e:

@@ -1,11 +1,10 @@
 from flask import Blueprint, Request, request, jsonify
 from pydantic import ValidationError
 from tortoise.exceptions import DoesNotExist
-
 from core.middlewares import login_required
 from products.models import Product
-from products.schemas import ProductSchema, RemoveSchema, UpdateSchema, PaginationSchema
-from utils.jwt import verify_access
+from products.schemas import ProductSchema, UpdateSchema, PaginationSchema
+# from utils.jwt import verify_access
 
 product_bp = Blueprint("products", __name__)
 
@@ -34,6 +33,7 @@ async def create():
 
 
 @product_bp.delete("/remove/<int:product_id>")
+@login_required
 async def remove_product(product_id: int):
     try:
         try:
@@ -49,6 +49,7 @@ async def remove_product(product_id: int):
 
 
 @product_bp.route("/update/<int:product_id>", methods=["PATCH"])
+@login_required
 async def update_product(product_id: int):
     try:
         data = request.json
@@ -78,6 +79,7 @@ async def update_product(product_id: int):
 
 
 @product_bp.route("/list", methods=["POST"])
+@login_required
 async def get_products_paginated():
     data = request.get_json()
 
@@ -112,6 +114,7 @@ async def get_products_paginated():
 
 
 @product_bp.get("/retrieve/<int:product_id>")
+@login_required
 async def get_one_product(product_id: int):
     try:
         product = await Product.get(id=product_id)

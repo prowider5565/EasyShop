@@ -12,9 +12,9 @@ class ProductSchema(BaseModel):
         from_attributes = True
 
 
-class RemoveSchema(BaseModel):
-    owner_id: int
-    product_id: int
+# class RemoveSchema(BaseModel):
+#     owner_id: int
+#     product_id: int
 
 
 class UpdateSchema(BaseModel):

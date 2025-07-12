@@ -23,16 +23,9 @@ Backend dasturlashda quyidagi http metodlar bor:
 
 
 app = Flask(__name__)
-<<<<<<< HEAD
-app.register_blueprint(user_bp, url_prefix="/auth")
-app.register_blueprint(product_bp, url_prefix="/products")
-=======
 
 app.register_blueprint(user_bp, url_prefix="/users")
 app.register_blueprint(product_bp, url_prefix="/products")
-
-
->>>>>>> 219e46441b037d58364aa3fc8cda49f091a30b18
 # ORM-ni ishga tushurish
 async def init_orm():
     await Tortoise.init(config=TORTOISE_ORM)
