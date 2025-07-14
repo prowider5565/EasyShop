@@ -1,22 +1,25 @@
-from flask import Blueprint, Request, request, jsonify
+from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 from tortoise.exceptions import DoesNotExist
-from core.middlewares import login_required
+from core.middlewares import is_admin_user, login_required
 from products.models import Product
-from products.schemas import ProductSchema, UpdateSchema, PaginationSchema
-# from utils.jwt import verify_access
+from products.schemas import ProductSchema, RemoveSchema, UpdateSchema, PaginationSchema
+from users.models import User
+from users.schemas import UserSchema
 
 product_bp = Blueprint("products", __name__)
 
 
 @product_bp.route("/create", methods=["POST"])
 @login_required
+@is_admin_user
 async def create():
     data = request.json
     try:
         product = ProductSchema(**data)
         try:
-            product_obj = await Product.create(**product.model_dump())
+            user = await User.get(id=request.user["user_id"])
+            product_obj = await Product.create(owner=user, **product.model_dump())
             return (
                 jsonify(
                     {
@@ -88,7 +91,12 @@ async def get_products_paginated():
         offset = (pagination.page - 1) * pagination.per_page
 
         total = await Product.all().count()
-        products = await Product.all().offset(offset).limit(pagination.per_page)
+        products = (
+            await Product.all()
+            .offset(offset)
+            .limit(pagination.per_page)
+            .select_related("owner")
+        )
 
         results = []
         for product in products:
@@ -98,9 +106,9 @@ async def get_products_paginated():
                     "name": product.name,
                     "description": product.description,
                     "price": product.price,
+                    "owner": UserSchema.model_validate(product.owner).model_dump(),
                 }
             )
-
         return jsonify(
             {
                 "total": total,
