@@ -9,6 +9,7 @@ class Product(Model):
     price = fields.IntField(max_length=50)
     owner = fields.ForeignKeyField(model_name="users.User", related_name="products")
     created_at = fields.DatetimeField(auto_now_add=True)
+    category = fields.IntField(max_length=10)
 
     def __str__(self):
         return self.name

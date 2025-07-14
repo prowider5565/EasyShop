@@ -6,7 +6,8 @@ class ProductSchema(BaseModel):
     name: str
     description: str
     price: int
-
+    category: int
+    
     class Config:
         from_attributes = True
 

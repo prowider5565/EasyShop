@@ -3,11 +3,16 @@ from pydantic import ValidationError
 from tortoise.exceptions import DoesNotExist
 from core.middlewares import is_admin_user, login_required
 from products.models import Product
-from products.schemas import ProductSchema, RemoveSchema, UpdateSchema, PaginationSchema
+from products.schemas import ProductSchema, UpdateSchema, PaginationSchema
 from users.models import User
 from users.schemas import UserSchema
+from datetime import datetime
 
 product_bp = Blueprint("products", __name__)
+
+# 1. Tovarlarga category qushish, va cateogry bilan productni boglash foreignkey bilan - DONE
+# 2. product list apida filter qushish date order by - DONE, name bilan search - DONE, owner id bilan filter qilish - DONE, by category filter - DONE
+# 3. order qila olsh, yani bir nechta mahsulotlar zakaz qilish mumkin, va har bir zakazni miqdori bulishi kerak
 
 
 @product_bp.route("/create", methods=["POST"])
@@ -120,6 +125,77 @@ async def get_products_paginated():
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
 
+@product_bp.get("/category/<int:category_id>")
+@login_required
+async def get_with_category(category_id: int):
+    products = await Product.filter(category=category_id).all()
+
+    if not products:
+        return jsonify({"error": "Mahsulotlar topilmadi"}), 404
+
+    product_schema = [
+        ProductSchema.model_validate(product).model_dump()
+        for product in products
+    ]
+    return jsonify(product_schema), 200
+
+
+
+@product_bp.get("/date_order")
+@login_required
+async def get_sorted_products():
+    products = await Product.all().order_by("created_at")
+
+    if not products:
+        return jsonify({"error": "Mahsulotlar topilmadi"}), 404
+
+    result = []
+    for product in products:
+        result.append({
+            "name": product.name,
+            "description": product.description,
+            "price": product.price,
+            "category": product.category,
+            "created_at": product.created_at.isoformat()
+        })
+
+    return jsonify(result), 200
+
+@product_bp.get("/search/<string:name>")
+@login_required
+async def get_product_name(name: str):
+    try:    
+        products = await Product.filter(name=name).all()
+    except DoesNotExist as e:
+        return jsonify({"error": "Product not found"})
+
+    result = []
+    for product in products:
+            result.append({
+            "name": product.name,
+            "description": product.description,
+            "price": product.price,
+            "category": product.category
+        })
+    return jsonify(result)
+
+@product_bp.get("/find/<int:own_id>")
+@login_required
+async def get_by_owner_id(own_id:int):
+    owners = await Product.filter(owner_id=own_id).all() 
+
+    if not owners:
+        return jsonify({"error": "Products not found"}), 404
+    
+    result = []
+    for product in owners:
+        result.append({
+            "name": product.name,
+            "description": product.description,
+            "price": product.price,
+            "category": product.category
+        })
+    return jsonify(result)
 
 @product_bp.get("/retrieve/<int:product_id>")
 @login_required
