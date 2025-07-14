@@ -21,8 +21,16 @@ async def register():
         user = RegisterSchema(**data)
         user.password = hash_password(user.password)
         try:
-            await User.create(**user.model_dump())
-            return jsonify({"message": "User registered successfully"}), 201
+            new_user = await User.create(**user.model_dump())
+            return (
+                jsonify(
+                    {
+                        "message": "Ro'yxatdan muvaffaqiyatli o'tdingiz!",
+                        "jwt": full_jwt({"user_id": new_user.id}),
+                    }
+                ),
+                201,
+            )
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     except ValidationError as e:
@@ -38,7 +46,7 @@ async def login():
         try:
             user = await User.get(username=login.username)
         except:
-            return jsonify({"error": "Username noto'g'ri"}), 404
+            return jsonify({"error": "Foydalanuvchi topilmadi"}), 404
 
         if not verify_password(login.password, user.password):
             return jsonify({"error": "Parol noto'g'ri"}), 401
