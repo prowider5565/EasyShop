@@ -1,8 +1,5 @@
 from flask import Blueprint, request, jsonify
 from users.models import User
-
-# from core.utils import hash_password
-import hashlib
 from users.schemas import RegisterSchema, LoginSchema, GetSchema
 from pydantic import ValidationError
 from utils.auth import hash_password, verify_password

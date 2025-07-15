@@ -6,7 +6,8 @@ from products.models import Product
 from products.schemas import ProductSchema, UpdateSchema, PaginationSchema
 from users.models import User
 from users.schemas import UserSchema
-from datetime import datetime
+# from category.models import Category
+# from datetime import datetime
 
 product_bp = Blueprint("products", __name__)
 
@@ -24,7 +25,14 @@ async def create():
         product = ProductSchema(**data)
         try:
             user = await User.get(id=request.user["user_id"])
+            # category = await Category.get(id=data["category"])
+            # category = await Category.get_or_none(id=product.category)
             product_obj = await Product.create(owner=user, **product.model_dump())
+            # product_obj = await Product.create(
+            #     **product.model_dump(exclude={"category"}),  # bu modeldan category ni olib tashlaydi
+            #     owner=user,
+            #     category=category
+            # )
             return (
                 jsonify(
                     {
@@ -112,6 +120,7 @@ async def get_products_paginated():
                     "description": product.description,
                     "price": product.price,
                     "owner": UserSchema.model_validate(product.owner).model_dump(),
+                    # "category": ProductSchema.model_validate(product.category).model_dump(),
                 }
             )
         return jsonify(
@@ -138,6 +147,15 @@ async def get_with_category(category_id: int):
         for product in products
     ]
     return jsonify(product_schema), 200
+
+
+# 3. order qila olsh, yani bir nechta mahsulotlar zakaz qilish mumkin, va har bir zakazni miqdori bulishi kerak
+
+# @product_bp.get("/order")
+# @login_required
+# async def buy_order():
+#     data = request.json
+
 
 
 

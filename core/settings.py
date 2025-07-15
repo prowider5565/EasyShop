@@ -9,6 +9,10 @@ TORTOISE_ORM = {
             "models": ["products.models"],
             "default_connection": "default",
         },
+        # "products": {
+        #     "models": ["category.models"],
+        #     "default_connection": "default",
+        # },
     },
 }
 

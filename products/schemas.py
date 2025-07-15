@@ -27,3 +27,8 @@ class UpdateSchema(BaseModel):
 class PaginationSchema(BaseModel):
     page: Optional[int] = 1
     per_page: Optional[int] = 10
+
+
+class BuyOderSchemas(BaseModel):
+    product_id: int
+    count: int
