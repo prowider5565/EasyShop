@@ -3,6 +3,7 @@ from users.handlers import user_bp
 from products.handlers import product_bp
 from category.handlers import category_bp
 from tortoise import Tortoise
+from orders.handlers import orders_bp
 from core.settings import TORTOISE_ORM
 import asyncio
 
@@ -28,6 +29,9 @@ app = Flask(__name__)
 app.register_blueprint(user_bp, url_prefix="/users")
 app.register_blueprint(product_bp, url_prefix="/products")
 app.register_blueprint(category_bp, url_prefix="/category")
+app.register_blueprint(orders_bp, url_prefix="/orders")
+
+
 # ORM-ni ishga tushurish
 async def init_orm():
     await Tortoise.init(config=TORTOISE_ORM)
@@ -45,3 +49,12 @@ if __name__ == "__main__":
         app.run(debug=True)
     finally:
         asyncio.run(close_orm())
+
+        
+async def init():
+    await Tortoise.init(
+        db_url='sqlite://db.sqlite3',
+        modules={'models': ['orders.models', 'products.models', 'users.models', 'category.models']}
+    )
+    await Tortoise.generate_schemas()
+
