@@ -2,6 +2,7 @@ from flask import Flask
 from users.handlers import user_bp
 from products.handlers import product_bp
 from category.handlers import category_bp
+from orders.handlers import orders_bp
 from tortoise import Tortoise
 from core.settings import TORTOISE_ORM
 import asyncio
@@ -28,6 +29,8 @@ app = Flask(__name__)
 app.register_blueprint(user_bp, url_prefix="/users")
 app.register_blueprint(product_bp, url_prefix="/products")
 app.register_blueprint(category_bp, url_prefix="/category")
+app.register_blueprint(orders_bp, url_prefix="/order")
+
 # ORM-ni ishga tushurish
 async def init_orm():
     await Tortoise.init(config=TORTOISE_ORM)

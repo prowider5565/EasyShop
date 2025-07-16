@@ -146,31 +146,6 @@ async def get_products_paginated():
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
 
-# @product_bp.get("/category/<int:category_id>")
-# @login_required
-# async def get_products_by_category(category_id):
-#     try:
-#         category = await Category.get(id=category_id).prefetch_related('products')
-#         # category.products bu related_name orqali bog‘langan productlar
-#         data = {
-#             "category_id": category.id,
-#             "name": category.name,
-#             "products": [{"id": p.id, "name": p.name} for p in category.products]
-#         }
-#         return jsonify(data)
-#     except:
-#         return jsonify({"error": "Category not found"}), 404
-
-
-# 3. order qila olsh, yani bir nechta mahsulotlar zakaz qilish mumkin, va har bir zakazni miqdori bulishi kerak
-
-# @product_bp.get("/order")
-# @login_required
-# async def buy_order():
-#     data = request.json
-
-
-
 
 @product_bp.get("/date_order")
 @login_required
@@ -196,7 +171,7 @@ async def get_sorted_products():
 @login_required
 async def get_product_name(name: str):
     try:    
-        products = await Product.filter(name=name).select_related("category").all()
+        products = await Product.filter(name=name).prefetch_related("category").all()
         if not products:
             return jsonify({"error": "Product not found"}), 404
         result = []
