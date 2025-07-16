@@ -17,39 +17,6 @@ product_bp = Blueprint("products", __name__)
 # 3. order qila olsh, yani bir nechta mahsulotlar zakaz qilish mumkin, va har bir zakazni miqdori bulishi kerak
 
 
-# @product_bp.route("/create", methods=["POST"])
-# @login_required
-# @is_admin_user
-# async def create():
-#     data = request.json
-#     try:
-#         product = ProductSchema(**data)
-#         try:
-#             user = await User.get(id=request.user["user_id"])
-#             # category = await Category.get(id=data["category"])
-#             # category = await Category.get_or_none(id=product.category)
-#             product_obj = await Product.create(owner=user, **product.model_dump())
-#             # product_obj = await Product.create(
-#             #     **product.model_dump(exclude={"category"}),  # bu modeldan category ni olib tashlaydi
-#             #     owner=user,
-#             #     category=category
-#             # )
-#             return (
-#                 jsonify(
-#                     {
-#                         "message": "Product created successfully",
-#                         "product_id": product_obj.id,
-#                     }
-#                 ),
-#                 201,
-#             )
-#         except Exception as e:
-#             return jsonify({"error": str(e)}), 500
-#     except ValidationError as e:
-#         return jsonify({"error": e.errors()}), 400
-
-
-
 @product_bp.route("/create", methods=["POST"])
 @login_required
 @is_admin_user
@@ -208,7 +175,7 @@ async def get_products_paginated():
 @product_bp.get("/date_order")
 @login_required
 async def get_sorted_products():
-    products = await Product.all().order_by("created_at")
+    products = await Product.all().select_related("category").order_by("created_at")
 
     if not products:
         return jsonify({"error": "Mahsulotlar topilmadi"}), 404
@@ -219,7 +186,7 @@ async def get_sorted_products():
             "name": product.name,
             "description": product.description,
             "price": product.price,
-            "category": product.category,
+            "category": product.category.name,  # bu endi ishlaydi
             "created_at": product.created_at.isoformat()
         })
 
@@ -229,37 +196,38 @@ async def get_sorted_products():
 @login_required
 async def get_product_name(name: str):
     try:    
-        products = await Product.filter(name=name).all()
-    except DoesNotExist as e:
-        return jsonify({"error": "Product not found"})
-
-    result = []
-    for product in products:
+        products = await Product.filter(name=name).select_related("category").all()
+        if not products:
+            return jsonify({"error": "Product not found"}), 404
+        result = []
+        for product in products:
             result.append({
-            "name": product.name,
-            "description": product.description,
-            "price": product.price,
-            "category": product.category
-        })
-    return jsonify(result)
+                "name": product.name,
+                "description": product.description,
+                "price": product.price,
+                "category": product.category.name
+            })
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @product_bp.get("/find/<int:own_id>")
 @login_required
-async def get_by_owner_id(own_id:int):
-    owners = await Product.filter(owner_id=own_id).all() 
+async def get_by_owner_id(own_id: int):
+    owners = await Product.filter(owner=own_id).select_related("category").all()
 
     if not owners:
         return jsonify({"error": "Products not found"}), 404
-    
+
     result = []
     for product in owners:
         result.append({
             "name": product.name,
             "description": product.description,
             "price": product.price,
-            "category": product.category
+            "category": product.category.name,
         })
-    return jsonify(result)
+    return jsonify(result), 200
 
 @product_bp.get("/retrieve/<int:product_id>")
 @login_required
