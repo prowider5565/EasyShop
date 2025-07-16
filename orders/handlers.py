@@ -9,13 +9,18 @@ def create_order():
     data = request.get_json()
     try:
         validated = CreateOrderSchema(**data)
+        try:
+            product_obj = Order.create(**validated.model_dump())
+            return jsonify({'message': 'Order created'})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
     # quantity > 0, product_id > 0 tekshirish
-    for item in validated.items:
-        if item.product_id <= 0 or item.quantity <= 0:
-            return jsonify({'error': 'product_id and quantity must be greater than 0'}), 400
+    # for item in validated.items:
+    #     if item.product_id <= 0 or item.quantity <= 0:
+    #         return jsonify({'error': 'product_id and quantity must be greater than 0'}), 400
 
     # bu yerda tortoise-orm create qilish asosan async bo‘ladi.
     # Flask async route ishlatmayapti, shuning uchun bu qismda `async` ishlatolmaymiz.
@@ -27,6 +32,5 @@ def create_order():
     # loop = asyncio.get_event_loop()
     # order = loop.run_until_complete(Order.create())
 
-    return jsonify({'message': 'Order created'})
 
 
