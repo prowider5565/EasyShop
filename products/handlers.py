@@ -3,6 +3,7 @@ from pydantic import ValidationError
 from tortoise.exceptions import DoesNotExist
 from core.middlewares import is_admin_user, login_required
 from products.models import Product
+from category.models import Category
 from products.schemas import ProductSchema, UpdateSchema, PaginationSchema
 from users.models import User
 from users.schemas import UserSchema
@@ -16,23 +17,64 @@ product_bp = Blueprint("products", __name__)
 # 3. order qila olsh, yani bir nechta mahsulotlar zakaz qilish mumkin, va har bir zakazni miqdori bulishi kerak
 
 
+# @product_bp.route("/create", methods=["POST"])
+# @login_required
+# @is_admin_user
+# async def create():
+#     data = request.json
+#     try:
+#         product = ProductSchema(**data)
+#         try:
+#             user = await User.get(id=request.user["user_id"])
+#             # category = await Category.get(id=data["category"])
+#             # category = await Category.get_or_none(id=product.category)
+#             product_obj = await Product.create(owner=user, **product.model_dump())
+#             # product_obj = await Product.create(
+#             #     **product.model_dump(exclude={"category"}),  # bu modeldan category ni olib tashlaydi
+#             #     owner=user,
+#             #     category=category
+#             # )
+#             return (
+#                 jsonify(
+#                     {
+#                         "message": "Product created successfully",
+#                         "product_id": product_obj.id,
+#                     }
+#                 ),
+#                 201,
+#             )
+#         except Exception as e:
+#             return jsonify({"error": str(e)}), 500
+#     except ValidationError as e:
+#         return jsonify({"error": e.errors()}), 400
+
+
+
 @product_bp.route("/create", methods=["POST"])
 @login_required
 @is_admin_user
 async def create():
     data = request.json
     try:
-        product = ProductSchema(**data)
+        product_data = ProductSchema(**data)
+
         try:
             user = await User.get(id=request.user["user_id"])
-            # category = await Category.get(id=data["category"])
-            # category = await Category.get_or_none(id=product.category)
-            product_obj = await Product.create(owner=user, **product.model_dump())
-            # product_obj = await Product.create(
-            #     **product.model_dump(exclude={"category"}),  # bu modeldan category ni olib tashlaydi
-            #     owner=user,
-            #     category=category
-            # )
+
+            # Kategoriya mavjudligini tekshirish
+            category = await Category.get_or_none(id=product_data.category_id)
+            if not category:
+                return jsonify({"error": "Category not found"}), 404
+
+            # Mahsulotni yaratish
+            product_obj = await Product.create(
+                # name=product_data.name,
+                owner=user,
+                category=category,
+                **product_data.model_dump()
+                # boshqa maydonlar bo‘lsa shu yerda yozing
+            )
+
             return (
                 jsonify(
                     {
@@ -42,12 +84,15 @@ async def create():
                 ),
                 201,
             )
+
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
 
 
+    
 @product_bp.delete("/remove/<int:product_id>")
 @login_required
 async def remove_product(product_id: int):
@@ -134,19 +179,20 @@ async def get_products_paginated():
     except ValidationError as e:
         return jsonify({"error": e.errors()}), 400
 
-@product_bp.get("/category/<int:category_id>")
-@login_required
-async def get_with_category(category_id: int):
-    products = await Product.filter(category=category_id).all()
-
-    if not products:
-        return jsonify({"error": "Mahsulotlar topilmadi"}), 404
-
-    product_schema = [
-        ProductSchema.model_validate(product).model_dump()
-        for product in products
-    ]
-    return jsonify(product_schema), 200
+# @product_bp.get("/category/<int:category_id>")
+# @login_required
+# async def get_products_by_category(category_id):
+#     try:
+#         category = await Category.get(id=category_id).prefetch_related('products')
+#         # category.products bu related_name orqali bog‘langan productlar
+#         data = {
+#             "category_id": category.id,
+#             "name": category.name,
+#             "products": [{"id": p.id, "name": p.name} for p in category.products]
+#         }
+#         return jsonify(data)
+#     except:
+#         return jsonify({"error": "Category not found"}), 404
 
 
 # 3. order qila olsh, yani bir nechta mahsulotlar zakaz qilish mumkin, va har bir zakazni miqdori bulishi kerak

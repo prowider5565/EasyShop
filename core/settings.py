@@ -6,13 +6,9 @@ TORTOISE_ORM = {
             "default_connection": "default",
         },
         "products": {
-            "models": ["products.models"],
+            "models": ["products.models", "category.models"],  # IKKALASINI BIR QATORGA QO‘SH
             "default_connection": "default",
         },
-        # "products": {
-        #     "models": ["category.models"],
-        #     "default_connection": "default",
-        # },
     },
 }
 
