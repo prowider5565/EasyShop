@@ -1,17 +1,25 @@
-from tortoise import fields
-from tortoise.models import Model
+from datetime import datetime
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    ForeignKey,
+    DateTime,
+)
+from sqlalchemy.orm import declarative_base, relationship
+
+from core.settings import Base
 
 
-class User(Model):
-    id = fields.IntField(pk=True)
-    username = fields.CharField(max_length=50, unique=True)
-    email = fields.CharField(max_length=100, unique=True)
-    password = fields.CharField(max_length=128)
-    created_at = fields.DatetimeField(auto_now_add=True)
-    # is_active = fields.BooleanField(default=True)
-    # updated_at = fields.DatetimeField(auto_now=True)
-    is_superuser = fields.BooleanField(default=False)
-    
+class User(Base):
+    __tablename__ = "users"
 
-    def __str__(self):
-        return self.username
+    id = Column(Integer, primary_key=True)
+    username = Column(String(50), unique=True, nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
+    password = Column(String(128), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    is_superuser = Column(Boolean, default=False, nullable=False)
+
+    products = relationship("Product", back_populates="owner")

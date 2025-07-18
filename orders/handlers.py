@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
+from core.middlewares import login_required
 from orders.models import Order, OrderItem
 from .schemas import CreateOrderSchema
 
 orders_bp = Blueprint('orders', __name__)
 
 @orders_bp.route('/', methods=['POST'])
+@login_required
 def create_order():
     data = request.get_json()
     try:
