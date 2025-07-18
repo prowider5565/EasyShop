@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
-from orders.models import Order
+from orders.models import Order, OrderItem
 from .schemas import CreateOrderSchema
 
 orders_bp = Blueprint('orders', __name__)
 
-@orders_bp.route('/create_order', methods=['POST'])
+@orders_bp.route('/', methods=['POST'])
 def create_order():
     data = request.get_json()
     try:

@@ -1,11 +1,11 @@
+import asyncio
 from flask import Flask
+from core.settings import engine
 from users.handlers import user_bp
 from products.handlers import product_bp
 from category.handlers import category_bp
 from orders.handlers import orders_bp
-from tortoise import Tortoise
-from core.settings import TORTOISE_ORM
-import asyncio
+from core.settings import Base
 
 """
 Backend dasturlashda quyidagi http metodlar bor:
@@ -29,22 +29,8 @@ app = Flask(__name__)
 app.register_blueprint(user_bp, url_prefix="/users")
 app.register_blueprint(product_bp, url_prefix="/products")
 app.register_blueprint(category_bp, url_prefix="/category")
-app.register_blueprint(orders_bp, url_prefix="/order")
-
-# ORM-ni ishga tushurish
-async def init_orm():
-    await Tortoise.init(config=TORTOISE_ORM)
-    await Tortoise.generate_schemas()
-
-
-# ORM-ni yopish
-async def close_orm():
-    await Tortoise.close_connections()
+app.register_blueprint(orders_bp, url_prefix="/orders")
 
 
 if __name__ == "__main__":
-    asyncio.run(init_orm())  # ORM ni boshlash
-    try:
-        app.run(debug=True)
-    finally:
-        asyncio.run(close_orm())
+    app.run(debug=True)

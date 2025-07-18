@@ -1,17 +1,10 @@
-TORTOISE_ORM = {
-    "connections": {"default": "sqlite://db.sqlite3"},
-    "apps": {
-        "users": {
-            "models": ["users.models"],
-            "default_connection": "default",
-        },
-        "products": {
-            "models": ["products.models", "category.models"],  # IKKALASINI BIR QATORGA QO‘SH
-            "default_connection": "default",
-        },
-    },
-}
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
+
+engine = create_engine("sqlite:///db.sqlite3", echo=True)
+SessionLocal = sessionmaker(bind=engine)
 
 JWT_SETTINGS = {
     "secret_key": "strongKey",
@@ -19,3 +12,5 @@ JWT_SETTINGS = {
     "access_exp_minutes": 180,
     "refresh_exp_days": 7,
 }
+
+Base = declarative_base()
