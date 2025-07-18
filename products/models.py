@@ -1,27 +1,18 @@
-from datetime import datetime
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    ForeignKey,
-    DateTime,
-)
-from sqlalchemy.orm import relationship
-
-from core.settings import Base
+from tortoise import fields
+from tortoise.models import Model
 
 
-class Product(Base):
-    __tablename__ = "products"
+class Product(Model):
+    id = fields.IntField(pk=True)
+    name = fields.CharField(max_length=100)
+    description = fields.CharField(max_length=500)
+    price = fields.IntField(max_length=50)
+    owner = fields.ForeignKeyField(model_name="users.User", related_name="category")
+    created_at = fields.DatetimeField(auto_now_add=True)
+    category = fields.ForeignKeyField("products.Category", related_name="products")
+    # category= fields.IntField(max_legth=10)
+    # category = fields.ForeignKeyField('models.Category', related_name='products')
+    # category = fields.ForeignKeyField("models.Category", related_name="products")
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
-    description = Column(String(500))
-    price = Column(Integer, nullable=False)
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
-    in_stock = Column(Integer, default=0, nullable=False)
-
-    owner = relationship("User", back_populates="products")
-    category = relationship("Category", back_populates="products")
+    def __str__(self):
+        return self.name
