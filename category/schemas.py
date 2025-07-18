@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
-class CategorySchemas(BaseModel):
+class CategorySchema(BaseModel):
     category_id: int
     name: str
