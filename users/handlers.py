@@ -3,7 +3,7 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from utils.auth import hash_password, verify_password
 from utils.jwt import full_jwt
-from users.schemas import RegisterSchema, LoginSchema, GetSchema
+from users.schemas import RegisterSchema, LoginSchema, GetSchema, ResetPasswordSchema
 from users.models import User
 from core.middlewares import login_required, is_admin_user
 from core.settings import SessionLocal
@@ -89,4 +89,28 @@ def get_user():
 
 
 
-# Parol reset qilish api
+@user_bp.route("/reset-password", methods=["POST"])
+@login_required
+def reset_password():
+    data = request.get_json()
+    try:
+        reset_pass = ResetPasswordSchema(**data)
+        session: Session = SessionLocal()
+        try:
+            # foydalanuvchini token orqali aniqlaymiz
+            user = session.query(User).filter_by(id=request.user["user_id"]).first()
+
+            if not user or not verify_password(reset_pass.old_password, user.password):
+                return jsonify({"error": "Invalid credentials"}), 401
+
+            user.password = hash_password(reset_pass.new_password)
+            session.commit()
+
+            return jsonify({"message": "Password successfully updated"}), 200
+        finally:
+            session.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+# Parol reset qilish api - done 
