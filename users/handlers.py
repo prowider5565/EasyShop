@@ -10,6 +10,7 @@ from core.settings import SessionLocal
 
 user_bp = Blueprint("user", __name__)
 
+
 @user_bp.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
@@ -24,6 +25,7 @@ def register():
             username=validated.username,
             email=validated.email,
             password=hash_password(validated.password),
+            is_superuser=validated.is_superuser,
         )
         session.add(user)
         session.commit()
@@ -34,6 +36,7 @@ def register():
         return jsonify({"error": str(e)}), 500
     finally:
         session.close()
+
 
 @user_bp.route("/login", methods=["POST"])
 def login():
@@ -54,6 +57,7 @@ def login():
     finally:
         session.close()
 
+
 @user_bp.route("/get", methods=["POST"])
 @login_required
 @is_admin_user
@@ -70,10 +74,15 @@ def get_user():
         if not target:
             return jsonify({"error": "User not found"}), 404
 
-        return jsonify({
-            "id": target.id,
-            "username": target.username,
-            "email": target.email,
-        }), 200
+        return (
+            jsonify(
+                {
+                    "id": target.id,
+                    "username": target.username,
+                    "email": target.email,
+                }
+            ),
+            200,
+        )
     finally:
         session.close()

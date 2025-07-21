@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
-class CategorySchema(BaseModel):
-    category_id: int
+class WriteCategorySchema(BaseModel):
     name: str
+
+class ReadCategorySchema(WriteCategorySchema):
+    id: int

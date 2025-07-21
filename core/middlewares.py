@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import request, jsonify
 
+from core.settings import SessionLocal
 from users.models import User
 from utils.jwt import verify_access
 
@@ -29,8 +30,13 @@ def is_admin_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
-            user = User.get(id=request.user["user_id"])
-            if not user.is_superuser:
+            session = SessionLocal()
+            user = (
+                session.query(User).get(request.user["user_id"])
+            )
+            print("User >>>>>>>>", user)
+            print(not user, user.is_superuser)
+            if not user.is_superuser or not user:
                 return jsonify({"error": "Admin access required"}), 403
         except Exception as e:
             return jsonify({"error": "Invalid user or token"}), 401
