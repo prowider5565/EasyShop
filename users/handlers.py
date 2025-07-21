@@ -86,3 +86,7 @@ def get_user():
         )
     finally:
         session.close()
+
+
+
+# Parol reset qilish api
