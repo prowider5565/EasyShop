@@ -123,7 +123,7 @@ def get_products_paginated():
                     "name": p.name,
                     "description": p.description,
                     "price": p.price,
-                    "owner": UserSchema.from_orm(p.owner).dict(),
+                    "owner": UserSchema.model_validate(p.owner).model_dunp(),
                 }
             )
         return (

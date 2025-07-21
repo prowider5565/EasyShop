@@ -54,3 +54,7 @@ def get_products_by_category(category_id: int):
         return jsonify(data), 200
     finally:
         session.close()
+
+# Category delete
+# Category Update
+# Category list
