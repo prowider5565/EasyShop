@@ -1,15 +1,7 @@
 from datetime import datetime
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    ForeignKey,
-    DateTime,
-)
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-
-from core.settings import Base
-
+from core.database import Base
 
 class Product(Base):
     __tablename__ = "products"
@@ -25,3 +17,5 @@ class Product(Base):
 
     owner = relationship("User", back_populates="products")
     category = relationship("Category", back_populates="products")
+    
+    variants = relationship("Variant", back_populates="product", cascade="all, delete-orphan")

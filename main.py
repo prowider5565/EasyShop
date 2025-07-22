@@ -6,6 +6,7 @@ from products.handlers import product_bp
 from category.handlers import category_bp
 from orders.handlers import orders_bp
 from core.settings import Base
+from products.variants.handlers import variants_bp
 
 """
 Backend dasturlashda quyidagi http metodlar bor:
@@ -30,7 +31,7 @@ app.register_blueprint(user_bp, url_prefix="/users")
 app.register_blueprint(product_bp, url_prefix="/products")
 app.register_blueprint(category_bp, url_prefix="/category")
 app.register_blueprint(orders_bp, url_prefix="/orders")
-
+app.register_blueprint(variants_bp, url_prefix="/variants")
 
 if __name__ == "__main__":
     app.run(debug=True)
