@@ -2,8 +2,10 @@ from pydantic import BaseModel
 from typing import List
 
 class OrderItemSchema(BaseModel):
-    product_id: int
+    product_variant_id: int
     quantity: int
 
+
 class CreateOrderSchema(BaseModel):
-    items: List[OrderItemSchema]
+    orders: List[OrderItemSchema]
+    address_id: int

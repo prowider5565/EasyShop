@@ -27,3 +27,7 @@ class UserSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ResetPasswordSchema(BaseModel):
+    old_password: str
+    new_password: str
