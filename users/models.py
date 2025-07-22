@@ -23,3 +23,4 @@ class User(Base):
     is_superuser = Column(Boolean, default=False, nullable=False)
 
     products = relationship("Product", back_populates="owner")
+    # orders = relationship("Order", back_populates="customer")
