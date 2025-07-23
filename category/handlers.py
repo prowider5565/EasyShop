@@ -57,7 +57,59 @@ def get_products_by_category(category_id: int):
     finally:
         session.close()
 
+# DELETE CATEGORY
+@category_bp.route("/delete/<int:category_id>", methods=["DELETE"])
+@login_required
+@is_admin_user
+def delete_category(category_id):
+    session: Session = SessionLocal()
+    try:
+        category = session.query(Category).get(category_id)
+        if not category:
+            return jsonify({"error": "Category not found"}), 404
 
-# Category delete
-# Category Update
-# Category list
+        session.delete(category)
+        session.commit()
+        return jsonify({"message": "Category deleted successfully"}), 200
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+# UPDATE CATEGORY
+@category_bp.route("/update/<int:category_id>", methods=["PUT"])
+@login_required
+@is_admin_user
+def update_category(category_id):
+    data = request.get_json()
+    session: Session = SessionLocal()
+    try:
+        category = session.query(Category).get(category_id)
+        if not category:
+            return jsonify({"error": "Category not found"}), 404
+
+        validated = WriteCategorySchema(**data)
+        category.name = validated.name
+        session.commit()
+        return jsonify({"message": "Category updated successfully"}), 200
+    except Exception as e:
+        session.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+# LIST ALL CATEGORIES
+@category_bp.route("/all", methods=["GET"])
+@login_required
+def list_all_categories():
+    session: Session = SessionLocal()
+    try:
+        categories = session.query(Category).all()
+        result = [{"id": c.id, "name": c.name} for c in categories]
+        return jsonify(result), 200
+    finally:
+        session.close()
+        
