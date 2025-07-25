@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
 from core.middlewares import login_required
-from orders.models import Order, ItemSet
+from models.orders import Order, ItemSet
 from sqlalchemy.orm import Session
 from collections import defaultdict
-from core.settings import SessionLocal
+from core.database import SessionLocal
 
 orders_bp = Blueprint("orders", __name__)
 

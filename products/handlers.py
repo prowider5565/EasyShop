@@ -3,11 +3,11 @@ from sqlalchemy.orm import Session, joinedload
 from pydantic import ValidationError
 from core.middlewares import login_required, is_admin_user
 from products.schemas import ProductSchema, UpdateSchema, PaginationSchema
-from products.models import Product
-from category.models import Category
-from users.models import User
+from models.products import Product
+from models.categories import Category
+from models.users import User
 from users.schemas import UserSchema
-from core.settings import SessionLocal
+from core.database import SessionLocal
 
 product_bp = Blueprint("products", __name__)
 
@@ -38,7 +38,6 @@ def create_product():
             price=validated.price,
             owner_id=user.id,
             category_id=category.id,
-            in_stock=validated.in_stock or 0,
         )
         session.add(product)
         session.commit()

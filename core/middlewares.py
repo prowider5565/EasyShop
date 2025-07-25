@@ -1,8 +1,8 @@
 from functools import wraps
 from flask import request, jsonify
 
-from core.settings import SessionLocal
-from users.models import User
+from core.database import SessionLocal
+from models.users import User
 from utils.jwt import verify_access
 
 

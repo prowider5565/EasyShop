@@ -4,12 +4,11 @@ from sqlalchemy import (
     Integer,
     String,
     Boolean,
-    ForeignKey,
     DateTime,
 )
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import relationship
 
-from core.settings import Base
+from core.database import Base
 
 
 class User(Base):
@@ -23,4 +22,4 @@ class User(Base):
     is_superuser = Column(Boolean, default=False, nullable=False)
 
     products = relationship("Product", back_populates="owner")
-    # orders = relationship("Order", back_populates="customer")
+    orders = relationship("Order", back_populates="customer")

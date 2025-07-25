@@ -1,11 +1,8 @@
-import asyncio
 from flask import Flask
-from core.settings import engine
 from users.handlers import user_bp
 from products.handlers import product_bp
 from category.handlers import category_bp
 from orders.handlers import orders_bp
-from core.settings import Base
 from products.variants.handlers import variants_bp
 
 """

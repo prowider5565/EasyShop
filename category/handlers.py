@@ -2,8 +2,8 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy.orm import Session, joinedload
 from core.middlewares import is_admin_user, login_required
 from category.schemas import WriteCategorySchema
-from category.models import Category
-from core.settings import SessionLocal
+from models.categories import Category
+from core.database import SessionLocal
 
 category_bp = Blueprint("category", __name__)
 

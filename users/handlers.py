@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from utils.auth import hash_password, verify_password
 from utils.jwt import full_jwt
 from users.schemas import RegisterSchema, LoginSchema, GetSchema, ResetPasswordSchema
-from users.models import User
+from models.users import User
 from core.middlewares import login_required, is_admin_user
-from core.settings import SessionLocal
+from core.database import SessionLocal
 
 user_bp = Blueprint("user", __name__)
 
