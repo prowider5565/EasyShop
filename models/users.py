@@ -9,6 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from core.database import Base
+from models import variants
 
 
 class User(Base):
@@ -23,3 +24,9 @@ class User(Base):
 
     products = relationship("Product", back_populates="owner")
     orders = relationship("Order", back_populates="customer")
+    variants = relationship(
+        "Variant", back_populates="owner", cascade="all, delete-orphan"
+    )
+    addresses = relationship(
+        "Address", back_populates="user", cascade="all, delete-orphan"
+    )

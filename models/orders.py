@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import UUID, Column, Integer, ForeignKey, DateTime,String
+from sqlalchemy import UUID, Column, Integer, ForeignKey, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base, relationship
 from core.database import Base
@@ -17,15 +17,19 @@ import uuid
 #     # Aloqa
 #     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
+
 class Order(Base):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    customerId = Column(String, ForeignKey("users.id"), nullable=True)  # ForeignKey qo‘shildi
-    address_id = Column(Integer)
+    customerId = Column(
+        String, ForeignKey("users.id"), nullable=True
+    )  # ForeignKey qo‘shildi
+    address_id = Column(Integer, ForeignKey("addresses.id"), nullable=False)
 
     customer = relationship("User", back_populates="orders")
     items = relationship("ItemSet", back_populates="order")
+
 
 class ItemSet(Base):
     __tablename__ = "itemsets"
@@ -36,6 +40,7 @@ class ItemSet(Base):
     order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
 
     order = relationship("Order", back_populates="items")
+
 
 # class OrderItem(Base):
 #     __tablename__ = "order_items"
@@ -48,5 +53,3 @@ class ItemSet(Base):
 #     # Aloqalar
 #     order = relationship("Order", back_populates="items")
 #     product_variant = relationship("ProductVariant")
-
-

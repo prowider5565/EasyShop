@@ -122,7 +122,17 @@ def get_products_paginated():
                     "name": p.name,
                     "description": p.description,
                     "price": p.price,
-                    "owner": UserSchema.model_validate(p.owner).model_dunp(),
+                    "owner": UserSchema.model_validate(p.owner).model_dump(),
+                    "variants": [
+                        {
+                            "id": v.id,
+                            "name": v.name,
+                            "price": v.price,
+                            "in_stock": v.in_stock,
+                            "is_active": v.is_active,
+                        }
+                        for v in p.variants
+                    ],
                 }
             )
         return (

@@ -14,10 +14,10 @@ class VariantCreate(VariantBase):
 
 
 class VariantUpdate(BaseModel):
-    name: Optional[str]
-    price: Optional[float]
-    in_stock: Optional[int]
-    is_active: Optional[bool]
+    name: Optional[str] = None
+    price: Optional[float] = None
+    in_stock: Optional[int] = None
+    is_active: Optional[bool] = None
 
 
 class VariantOut(VariantBase):

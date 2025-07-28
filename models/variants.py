@@ -15,8 +15,7 @@ class Variant(Base):
     price = Column(Numeric(10, 2), nullable=False)
     in_stock = Column(Integer, nullable=False)
     is_active = Column(Boolean, default=True)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
+    owner = relationship("User", back_populates="variants")
     product = relationship("Product", back_populates="variants")
-
-
-print("Variant model loaded successfully")  # Debug maqsadida qo'shildi

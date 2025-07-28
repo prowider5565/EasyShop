@@ -57,6 +57,7 @@ def get_products_by_category(category_id: int):
     finally:
         session.close()
 
+
 # DELETE CATEGORY
 @category_bp.route("/delete/<int:category_id>", methods=["DELETE"])
 @login_required
@@ -112,4 +113,3 @@ def list_all_categories():
         return jsonify(result), 200
     finally:
         session.close()
-        

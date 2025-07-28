@@ -21,6 +21,7 @@ def login_required(f):
 
         # Inject the user into the request context
         request.user = user
+        print("User >>>>>>>>", request.user)
         return f(*args, **kwargs)
 
     return decorated_function
@@ -42,6 +43,26 @@ def is_admin_user(f):
             return jsonify({"error": "Invalid user or token"}), 401
 
         # User is admin, continue to the view
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def is_owner(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            session = SessionLocal()
+            user = session.query(User).get(request.user["user_id"])
+            if not user:
+                return jsonify({"error": "User not found"}), 404
+
+            # Check if the user is the owner of the resource
+            if user.id != kwargs.get('user_id'):
+                return jsonify({"error": "You are not the owner of this resource"}), 403
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
         return f(*args, **kwargs)
 
     return decorated_function

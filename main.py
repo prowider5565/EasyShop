@@ -1,9 +1,11 @@
 from flask import Flask
 from users.handlers import user_bp
+from payment.handlers import stripe_bp
 from products.handlers import product_bp
 from category.handlers import category_bp
 from orders.handlers import orders_bp
 from products.variants.handlers import variants_bp
+from identity.handlers import addr_router
 
 """
 Backend dasturlashda quyidagi http metodlar bor:
@@ -29,6 +31,7 @@ app.register_blueprint(product_bp, url_prefix="/products")
 app.register_blueprint(category_bp, url_prefix="/category")
 app.register_blueprint(orders_bp, url_prefix="/orders")
 app.register_blueprint(variants_bp, url_prefix="/variants")
-
+app.register_blueprint(addr_router, url_prefix="/address")
+app.register_blueprint(stripe_bp, url_prefix="/stripe")
 if __name__ == "__main__":
     app.run(debug=True)
