@@ -6,6 +6,8 @@ from category.handlers import category_bp
 from orders.handlers import orders_bp
 from products.variants.handlers import variants_bp
 from identity.handlers import addr_router
+from flask_cors import CORS
+
 
 """
 Backend dasturlashda quyidagi http metodlar bor:
@@ -23,11 +25,6 @@ Backend dasturlashda quyidagi http metodlar bor:
 
 """
 
-
-app = Flask(__name__)
-
-from flask import Flask, jsonify
-from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes

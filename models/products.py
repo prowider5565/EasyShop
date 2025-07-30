@@ -14,7 +14,7 @@ class Product(Base):
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
-
+    image = Column(String(255), nullable=True)
     owner = relationship("User", back_populates="products")
     category = relationship("Category", back_populates="products")
 
