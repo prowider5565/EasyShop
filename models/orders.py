@@ -1,21 +1,17 @@
 from datetime import datetime
-from sqlalchemy import UUID, Column, Integer, ForeignKey, DateTime, String
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base, relationship
+from enum import Enum as E
+from sqlalchemy import Enum, Column, Integer, ForeignKey, DateTime, String
+from sqlalchemy.orm import relationship
 from core.database import Base
-import uuid
 
 
-# class Order(Base):
-#     __tablename__ = "orders"
+class OrderStatus(E):
+    Ordered = "Ordered"
+    Paid = "Paid"
+    Pending = "Pending"
+    Delivered = "Delivered"
+    Cancelled = "Cancelled"
 
-#     id = Column(Integer, primary_key=True)
-#     customer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-#     status = Column(String, default="Ordered")
-#     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-#     address_id = Column(Integer, ForeignKey("addresses.id"), nullable=False)
-#     # Aloqa
-#     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
 
 class Order(Base):
@@ -26,6 +22,8 @@ class Order(Base):
         String, ForeignKey("users.id"), nullable=True
     )  # ForeignKey qo‘shildi
     address_id = Column(Integer, ForeignKey("addresses.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=True)
+    status = Column(Enum(OrderStatus), default="Ordered", nullable=True)
 
     customer = relationship("User", back_populates="orders")
     items = relationship("ItemSet", back_populates="order")
@@ -41,15 +39,3 @@ class ItemSet(Base):
 
     order = relationship("Order", back_populates="items")
 
-
-# class OrderItem(Base):
-#     __tablename__ = "order_items"
-
-#     id = Column(Integer, primary_key=True)
-#     order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
-#     product_variant_id = Column(Integer, ForeignKey("product_variants.id"), nullable=False)
-#     quantity = Column(Integer, nullable=False)
-
-#     # Aloqalar
-#     order = relationship("Order", back_populates="items")
-#     product_variant = relationship("ProductVariant")

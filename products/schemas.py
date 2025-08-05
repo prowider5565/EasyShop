@@ -7,7 +7,8 @@ class ProductSchema(BaseModel):
     description: str
     price: int
     category_id: int
-    
+    image: Optional[str] = None
+
     class Config:
         from_attributes = True
 
@@ -17,8 +18,9 @@ class ProductSchema(BaseModel):
 #     product_id: int
 
 
-class UpdateSchema(BaseModel):
+class UpdateSchema(ProductSchema):
     owner_id: Optional[int] = None
+    category_id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None

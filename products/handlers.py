@@ -85,6 +85,13 @@ def update_product(product_id: int):
             product.description = validated.description
         if validated.price is not None:
             product.price = validated.price
+        if validated.category_id is not None:
+            category = session.query(Category).get(validated.category_id)
+            if not category:
+                return jsonify({"error": "Category not found"}), 404
+            product.category_id = category.id
+        if validated.image is not None:
+            product.image = validated.image
 
         session.commit()
         return jsonify({"message": "Product updated"}), 200
@@ -96,7 +103,6 @@ def update_product(product_id: int):
 
 
 @product_bp.route("/list", methods=["POST"])
-@login_required
 def get_products_paginated():
     data = request.get_json()
     try:
@@ -122,6 +128,7 @@ def get_products_paginated():
                     "name": p.name,
                     "description": p.description,
                     "price": p.price,
+                    "image": p.image,
                     "owner": UserSchema.model_validate(p.owner).model_dump(),
                     "variants": [
                         {
