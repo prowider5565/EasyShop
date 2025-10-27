@@ -1,2 +1,2 @@
-# EasyShop
-An educational Ecommerce website which holds multiple products and customers.
+# Pull Shark Test  
+Forkdan tahrir kiritildi!
